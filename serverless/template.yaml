@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  OdoStatHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs8.10
+      Events:
+        OdoStatEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt OdoStatQueue.Arn
+            BatchSize: 10
+  OdoStatQueue:
+    Type: AWS::SQS::Queue
+  OdoStatQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref OdoStatQueue
+      PolicyDocument:
+        Statement:
+          Effect: Allow
+          Action: "sqs:SendMessage"
+          Resource: !GetAtt OdoStatQueue.Arn
+  OdoStatApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: OdoStatApi
+      EndpointConfiguration: REGIONAL
+      StageName: v1
+      DefinitionBody:
+        swagger: "2.0"
+        info:
+          version: "1"
+          title: "vs-odo"
+        basePath: "/production"
+        schemes:
+        - "https"
+        paths:
+          /v1/send:
+            get:
+              produces:
+              - "application/json"
+              parameters:
+              - name: "MessageBody"
+                in: "query"
+                required: true
+                type: "string"
+              responses:
+                '200':
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+              security:
+              - api_key: []
+              x-amazon-apigateway-integration:
+                credentials: 
+                  Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/vs-odo-apigateway-sqs"
+                uri: 
+                  Fn::Sub: "arn:aws:apigateway:eu-west-1:sqs:path/${OdoStatQueue.QueueName}"
+                responses:
+                  default:
+                    statusCode: "200"
+                requestParameters:
+                  integration.request.querystring.MessageBody: "method.request.querystring.MessageBody"
+                  integration.request.querystring.Action: "'SendMessage'"
+                  integration.request.header.Content-Type: "'application/json'"
+                passthroughBehavior: "when_no_match"
+                httpMethod: "POST"
+                type: "aws"
+        securityDefinitions:
+          api_key:
+            type: "apiKey"
+            name: "x-api-key"
+            in: "header"
+        definitions:
+          Empty:
+            type: "object"
+            title: "Empty Schema"
