@@ -26,7 +26,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoStatTable
-      CodeUri: s3://vs-odo-lambda/4ed51b8228e08c1425584c0f564a597f
+      CodeUri: s3://vs-odo-lambda/cf0156176b093bfacdad448c96ff5e4c
   OdoStatQueue:
     Type: AWS::SQS::Queue
   OdoStatQueuePolicy:

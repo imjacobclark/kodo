@@ -2,13 +2,13 @@ import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 
 class StatEvent {
-	user: string;
+	userId: string;
 	time: number;
 	project: string;
 	file: string;
 
-	constructor(user: string, editor: vscode.TextEditor){
-		this.user = user;
+	constructor(userId: string, editor: vscode.TextEditor){
+		this.userId = userId;
 		this.time = (new Date).getTime();
 		this.project = getProjectName(editor.document.fileName);
 		this.file = editor.document.fileName.split("/").slice(-1)[0];
