@@ -1,26 +1,38 @@
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 
+class StatEvent {
+	user: string;
+	time: number;
+	project: string;
+	file: string;
+
+	constructor(user: string, editor: vscode.TextEditor){
+		this.user = user;
+		this.time = (new Date).getTime();
+		this.project = getProjectName(editor.document.fileName);
+		this.file = editor.document.fileName.split("/").slice(-1)[0];
+	}
+}
+
 export function activate(context: vscode.ExtensionContext) {
 	const editor = vscode.window.activeTextEditor;
+
 	const eventAction = () => {
 		if (editor) {
-			const stat = new Buffer(JSON.stringify({
-				time: (new Date).getTime(),
-				projectName: getProjectName(editor.document.fileName),
-				fileName: editor.document.fileName.split("/").slice(-1)[0],
-				client: 'imjacobclark'
-			})).toString('base64');
+			const statEvent = new StatEvent('imjacobclark', editor);
+			const statPayload = new Buffer(JSON.stringify({statEvent})).toString('base64');
 
-			fetch(`https://roqsgb2ddh.execute-api.eu-west-1.amazonaws.com/v1/send?MessageBody=${stat}`)
-				.then(res => res.json()) // expecting a json response
-				.then(json => console.log(json))
+			fetch(`https://uch3soje7l.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${statPayload}`)
 				.catch(err => console.log(err));
 		}
 	}
 
-	[vscode.window.onDidChangeTextEditorSelection, vscode.window.onDidChangeActiveTextEditor, vscode.workspace.onDidSaveTextDocument]
-		.map(subscription => subscription(eventAction));
+	[
+		vscode.window.onDidChangeTextEditorSelection, 
+		vscode.window.onDidChangeActiveTextEditor, 
+		vscode.workspace.onDidSaveTextDocument
+	].map(subscription => subscription(eventAction));
 }
 
 function getProjectName(file: string): string {

@@ -3,5 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "author": "Jacob Clark",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.476.0"
+  }
 }

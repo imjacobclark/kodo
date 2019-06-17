@@ -12,6 +12,17 @@ Resources:
           Properties:
             Queue: !GetAtt OdoStatQueue.Arn
             BatchSize: 10
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:DeleteItem'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+              Resource:
+                Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoStatTable"
   OdoStatQueue:
     Type: AWS::SQS::Queue
   OdoStatQueuePolicy:
@@ -22,6 +33,7 @@ Resources:
       PolicyDocument:
         Statement:
           Effect: Allow
+          Principal: '*'
           Action: "sqs:SendMessage"
           Resource: !GetAtt OdoStatQueue.Arn
   OdoStatApi:
@@ -59,7 +71,7 @@ Resources:
                 credentials: 
                   Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/vs-odo-apigateway-sqs"
                 uri: 
-                  Fn::Sub: "arn:aws:apigateway:eu-west-1:sqs:path/${OdoStatQueue.QueueName}"
+                  Fn::Sub: "arn:aws:apigateway:${AWS::Region}:sqs:path/${OdoStatQueue.QueueName}"
                 responses:
                   default:
                     statusCode: "200"
@@ -70,12 +82,20 @@ Resources:
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "aws"
-        securityDefinitions:
-          api_key:
-            type: "apiKey"
-            name: "x-api-key"
-            in: "header"
         definitions:
           Empty:
             type: "object"
             title: "Empty Schema"
+  OdoStatStore:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: OdoStatTable
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5  
