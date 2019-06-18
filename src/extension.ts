@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
 
+const TEN_SECONDS = 10000;
+
 class StatEvent {
 	time: number;
 	project: string;
@@ -26,22 +28,33 @@ class Event {
 }
 
 export function activate(context: vscode.ExtensionContext) {
+	let lastStatEvent = 0;
+	let statEvents: Array<StatEvent> = [];
+	
 	const eventAction = () => {
 		const editor = vscode.window.activeTextEditor;
 
+		let timeElaspsedSinceLastEventInMs = (new Date).getTime() - lastStatEvent;		
+
 		if (editor) {
-			const statEvent = new StatEvent(
-				getProjectName(editor.document.fileName), 
-				editor.document.fileName.split("/").slice(-1)[0], 
+			statEvents.push(new StatEvent(
+				getProjectName(editor.document.fileName),
+				editor.document.fileName.split("/").slice(-1)[0],
 				editor.document.languageId
-			);
-
-			const event = new Event("imjacobclark", [statEvent]);
-			const statPayload = new Buffer(JSON.stringify({event})).toString('base64');
-
-			fetch(`https://uch3soje7l.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${statPayload}`)
-				.catch(err => console.log(err));
+			));
 		}
+		
+		if (timeElaspsedSinceLastEventInMs <= TEN_SECONDS && timeElaspsedSinceLastEventInMs !== 0) return;
+
+		const event = new Event("imjacobclark", statEvents);
+		const statPayload = new Buffer(JSON.stringify({event})).toString('base64');
+
+		fetch(`https://uch3soje7l.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${statPayload}`)
+			.then(data => {
+				lastStatEvent = (new Date).getTime();
+				statEvents = [];
+			})
+			.catch(err => console.log(err));
 	}
 
 	[
