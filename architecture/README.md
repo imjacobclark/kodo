@@ -13,4 +13,4 @@ vs-odo is deployed onto Amazon Web Services and built using the Serverless Appli
 
 ## Architecture Overview
 
-![Settings Window](https://raw.github.com/imjacobclark/vs-odo/master/architecture/Container Diagram.png)
+![Architecture Container Diagram](https://github.com/imjacobclark/vs-odo/blob/master/architecture/Container%20Diagram.png)
