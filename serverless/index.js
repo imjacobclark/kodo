@@ -3,7 +3,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = event => {
     event.Records.forEach(record => {
-        let recordToWrite = JSON.parse(new Buffer(record.body, 'base64').toString('ascii')).statEvent;
+        let recordToWrite = JSON.parse(new Buffer(record.body, 'base64').toString('ascii')).event;
 
         console.log(recordToWrite);
 
