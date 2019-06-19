@@ -4,7 +4,7 @@ Resources:
   OdoStatHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.handler
+      Handler: statEvent.handler
       Runtime: nodejs8.10
       Events:
         OdoStatEvent:
@@ -23,6 +23,18 @@ Resources:
                 - 'dynamodb:UpdateItem'
               Resource:
                 Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoStatTable"
+  OdoStatCalculationHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: eventCalculation.handler
+      Runtime: nodejs8.10
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt OdoStatStore.StreamArn
+            BatchSize: 1000
+            StartingPosition: TRIM_HORIZON
   OdoStatQueue:
     Type: AWS::SQS::Queue
   OdoStatQueuePolicy:
@@ -98,4 +110,19 @@ Resources:
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5
-        WriteCapacityUnits: 5  
+        WriteCapacityUnits: 5 
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+  OdoCalculationStore:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: OdoCalculationTable
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5 
