@@ -1,7 +1,7 @@
 {
 	"name": "vs-odo",
 	"displayName": "vs-odo",
-	"description": "odo example for VS Code",
+	"description": "Measure your coding activity!",
 	"version": "0.0.1",
 	"publisher": "imjacobclark",
 	"repository": "https://github.com/Microsoft/vscode-extension-samples/vs-odo",
