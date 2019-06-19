@@ -1,16 +1,17 @@
 import * as vscode from 'vscode';
 import fetch from 'node-fetch';
+import { runInContext } from 'vm';
 
-const TEN_SECONDS = 10000;
+const ONE_MIN = 60000;
 
 class StatEvent {
-	time: number;
+	elapsed: number;
 	project: string;
 	file: string;
 	language: string;
 
-	constructor(project: string, file: string, language: string){
-		this.time = (new Date).getTime();
+	constructor(elapsed: number, project: string, file: string, language: string){
+		this.elapsed = elapsed;
 		this.project = project;
 		this.file = file;
 		this.language = language;
@@ -28,33 +29,75 @@ class Event {
 }
 
 export function activate(context: vscode.ExtensionContext) {
+	let timeSinceLastHeartbeat = 0;
+	let eventBuffer: Array<StatEvent> = [];
+	let shouldAttemptToSendFurtherHeartbeats = true;
+
+	let firstStatEvent = 0;
 	let lastStatEvent = 0;
-	let statEvents: Array<StatEvent> = [];
-	
+
+	let dirty = false;
+
 	const eventAction = () => {
 		const editor = vscode.window.activeTextEditor;
+		const eventTime = (new Date).getTime();
 
-		let timeElaspsedSinceLastEventInMs = (new Date).getTime() - lastStatEvent;		
+		let timeElaspsedSinceLastEventInMs = eventTime - timeSinceLastHeartbeat;
+		
+		// TODO: Account for inactivity 
+
+		if (firstStatEvent === 0) {
+			firstStatEvent = eventTime;
+			lastStatEvent = eventTime;
+		} else {
+			lastStatEvent = eventTime;
+		}
+
+		const currentElapsedTime = lastStatEvent - firstStatEvent
+
+		if (currentElapsedTime === 0 || shouldAttemptToSendFurtherHeartbeats === false) {
+			console.log("vs-odo: Not firing stats event, nothing to send or already sending an event. Queued events: " + eventBuffer.length)
+			return;
+		}
+
+		if (timeElaspsedSinceLastEventInMs <= ONE_MIN && timeElaspsedSinceLastEventInMs !== 0) {
+			console.log("vs-odo: Not firing stats event, elapsed time since last event: " + timeElaspsedSinceLastEventInMs + ". Queued events: " + eventBuffer.length)
+			return;
+		}
+
+		if(!dirty) {
+			dirty = true;
+			console.log("vs-odo: First run, not sending an event.");
+			return;
+		}
 
 		if (editor) {
-			statEvents.push(new StatEvent(
+			eventBuffer.push(new StatEvent(
+				currentElapsedTime,
 				getProjectName(editor.document.fileName),
 				editor.document.fileName.split("/").slice(-1)[0],
 				editor.document.languageId
 			));
 		}
-		
-		if (timeElaspsedSinceLastEventInMs <= TEN_SECONDS && timeElaspsedSinceLastEventInMs !== 0) return;
 
-		const event = new Event("imjacobclark", statEvents);
+		shouldAttemptToSendFurtherHeartbeats = false;
+
+		const event = new Event("imjacobclark", eventBuffer);
 		const statPayload = new Buffer(JSON.stringify({event})).toString('base64');
 
-		fetch(`https://uch3soje7l.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${statPayload}`)
-			.then(data => {
-				lastStatEvent = (new Date).getTime();
-				statEvents = [];
+		fetch(`https://cjudn1rrx9.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${statPayload}`)
+			.then(event => {
+				console.log("vs-odo: Event sent, unlocking future stat event fires. Queued events: " + eventBuffer.length)
+				timeSinceLastHeartbeat = eventTime;
+				eventBuffer = [];
+				firstStatEvent = 0;
+				lastStatEvent = 0;
+				shouldAttemptToSendFurtherHeartbeats = true;
 			})
-			.catch(err => console.log(err));
+			.catch(err => {
+				console.error("vs-odo: Event failed to send, merging buffer and pending payload to try later.  Queued events: " + eventBuffer.length, err);
+				shouldAttemptToSendFurtherHeartbeats = true;
+			});
 	}
 
 	[
