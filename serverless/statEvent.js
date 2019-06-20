@@ -2,14 +2,14 @@ const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = event => {
-    const decodedEvents = event
+    const decodedHeartbeat = event
         .Records
-        .map(record => JSON.parse(new Buffer(record.body, 'base64').toString('ascii')).event);
+        .map(record => JSON.parse(new Buffer(record.body, 'base64').toString('ascii')).heartbeat);
 
-    const uniqueUserIdsFromBatch = [...new Set(decodedEvents.map(event => event.userId))];
+    const uniqueUserIds = [...new Set(decodedHeartbeat.map(event => event.userId))];
     
-    uniqueUserIdsFromBatch.map(userId => {
-        const uniqueUsersEvents = decodedEvents
+    uniqueUserIds.map(userId => {
+        const uniqueUsersEvents = decodedHeartbeat
             .filter(event => event.userId === userId)
             .reduce((previous, current) => [...current.events, ...previous], []);
 

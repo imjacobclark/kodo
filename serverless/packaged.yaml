@@ -26,7 +26,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoStatTable
-      CodeUri: s3://vs-odo-lambda/7e0475c2cca1efda06c504939465378b
+      CodeUri: s3://vs-odo-lambda/db9ae327622b7bf6c26fbaadedb35d66
   OdoStatCalculationHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -42,7 +42,7 @@ Resources:
               - StreamArn
             BatchSize: 1000
             StartingPosition: TRIM_HORIZON
-      CodeUri: s3://vs-odo-lambda/7e0475c2cca1efda06c504939465378b
+      CodeUri: s3://vs-odo-lambda/db9ae327622b7bf6c26fbaadedb35d66
   OdoStatQueue:
     Type: AWS::SQS::Queue
   OdoStatQueuePolicy:
