@@ -35,6 +35,17 @@ Resources:
             Stream: !GetAtt OdoStatStore.StreamArn
             BatchSize: 1000
             StartingPosition: TRIM_HORIZON
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:DeleteItem'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+              Resource:
+                Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoCalculationTable"
   OdoStatQueue:
     Type: AWS::SQS::Queue
   OdoStatQueuePolicy:
@@ -109,8 +120,8 @@ Resources:
         - AttributeName: userId
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1 
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
   OdoCalculationStore:
@@ -124,5 +135,5 @@ Resources:
         - AttributeName: userId
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1 

@@ -26,7 +26,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoStatTable
-      CodeUri: s3://vs-odo-lambda/6c23a281c2d1a628ac6cd2d09ef5aa55
+      CodeUri: s3://vs-odo-lambda/9366d22b2b8d036421f56d5ade839e12
   OdoStatCalculationHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -42,7 +42,18 @@ Resources:
               - StreamArn
             BatchSize: 1000
             StartingPosition: TRIM_HORIZON
-      CodeUri: s3://vs-odo-lambda/6c23a281c2d1a628ac6cd2d09ef5aa55
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:DeleteItem
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          Resource:
+            Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoCalculationTable
+      CodeUri: s3://vs-odo-lambda/3efcbb65dd33e924c98b1737defab97b
   OdoStatQueue:
     Type: AWS::SQS::Queue
   OdoStatQueuePolicy:
@@ -120,8 +131,8 @@ Resources:
       - AttributeName: userId
         KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
   OdoCalculationStore:
@@ -135,5 +146,5 @@ Resources:
       - AttributeName: userId
         KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
