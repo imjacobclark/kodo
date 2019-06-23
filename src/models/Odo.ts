@@ -1,28 +1,34 @@
 export default class Odo {
-    initialStatEvent: number;
-    lastStatEvent: number;
+    initialStatEpoch: number;
+    lastStatEpoch: number;
 
     constructor(){
-        this.initialStatEvent = 0;
-        this.lastStatEvent = 0;
+        this.initialStatEpoch = 0;
+        this.lastStatEpoch = 0;
     }
 
-    public fire(time: number){
-        if(this.initialStatEvent){
-            this.lastStatEvent = time;
+    public fire(epoch: number){
+        if(this.initialStatEpoch){
+            this.lastStatEpoch = epoch;
             return;
         }
 
-        this.initialStatEvent = time;
-        this.lastStatEvent = time;
+        this.initialStatEpoch = epoch;
+        this.lastStatEpoch = epoch;
     }
 
     public getElapsedTime(){
-        return this.lastStatEvent - this.initialStatEvent;
+        const noLastStatEpocRecorded = !this.lastStatEpoch;
+
+        if (noLastStatEpocRecorded){
+            return 0;
+        }
+
+        return this.lastStatEpoch - this.initialStatEpoch;
     }
 
     public reset(){
-        this.initialStatEvent = 0;
-        this.lastStatEvent = 0;
+        this.initialStatEpoch = 0;
+        this.lastStatEpoch = 0;
     }
 }

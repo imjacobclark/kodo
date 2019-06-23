@@ -27,23 +27,28 @@ export function activate(context: vscode.ExtensionContext) {
 		const editor = vscode.window.activeTextEditor;
 
 		if (editor) {
-			const eventTime = (new Date).getTime();
-			const currentEventNamespace: string = getProjectName(editor.document.fileName) + ":" + editor.document.fileName.split("/").slice(-1)[0];
-			const timeElaspsedSinceLastEventInMs = eventTime - timeSinceLastHeartbeat;
-
-			let location = trackedLocations[currentEventNamespace];
+			const epoch = (new Date).getTime();
+			const timeElaspsedSinceLastEventInMs = epoch - timeSinceLastHeartbeat;
 			
-			if (location){
-				location.odo.fire(eventTime);
-			} else {
-				trackedLocations[currentEventNamespace] = {
-					odo: new Odo(),
-					fileName: editor.document.fileName.split("/").slice(-1)[0],
-					project: getProjectName(editor.document.fileName),
-					languageId: editor.document.languageId
+			// TODO: Need to handle the point where an event is being sent and the timeSinceLastHeartbeat hasn't been reset so we don't loose events.
+			if (timeElaspsedSinceLastEventInMs <= ONE_MIN){
+				const currentEventNamespace: string = getProjectName(editor.document.fileName) + ":" + editor.document.fileName.split("/").slice(-1)[0];
+				let location = trackedLocations[currentEventNamespace];
+
+				if (location){
+					location.odo.fire(epoch);
+				} else {
+					trackedLocations[currentEventNamespace] = {
+						odo: new Odo(),
+						fileName: editor.document.fileName.split("/").slice(-1)[0],
+						project: getProjectName(editor.document.fileName),
+						languageId: editor.document.languageId
+					}
+					location = trackedLocations[currentEventNamespace];
+					location.odo.fire(epoch);
 				}
-				location = trackedLocations[currentEventNamespace];
-				location.odo.fire(eventTime);
+			}else{
+				console.log("Timed out...");
 			}
 
 			if (!shouldAttemptToSendFurtherHeartbeats) return;
@@ -52,16 +57,21 @@ export function activate(context: vscode.ExtensionContext) {
 			shouldAttemptToSendFurtherHeartbeats = false;
 			
 			Object.keys(trackedLocations).forEach(key => eventBuffer.add(new StatEvent(
+				epoch,
 				trackedLocations[key].odo.getElapsedTime(),
 				trackedLocations[key].project,
 				trackedLocations[key].fileName,
 				trackedLocations[key].languageId
 			)));
 
-			const heartbeat = new Heartbeat("imjacobclark", eventBuffer.get()).toBase64();
+		
+			console.log(eventBuffer);
 
+			const heartbeat = new Heartbeat("imjacobclark", eventBuffer.get()).toBase64();
+		
 			fetch(`https://cjudn1rrx9.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${heartbeat}`).then(event => {
-				timeSinceLastHeartbeat = eventTime;
+				console.log("Sent heartbeat");
+				timeSinceLastHeartbeat = epoch;
 				trackedLocations = {};
 				eventBuffer = new EventBuffer();
 				shouldAttemptToSendFurtherHeartbeats = true;

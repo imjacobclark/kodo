@@ -7,7 +7,7 @@ exports.handler = event => {
         .map(record => JSON.parse(new Buffer(record.body, 'base64').toString('ascii')).heartbeat);
 
     const uniqueUserIds = [...new Set(decodedHeartbeat.map(event => event.userId))];
-    
+
     uniqueUserIds.map(userId => {
         const uniqueUsersEvents = decodedHeartbeat
             .filter(event => event.userId === userId)
