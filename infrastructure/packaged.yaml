@@ -26,7 +26,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoStatTable
-      CodeUri: s3://kodo-lambda/40ee1273f37f54c13bfd72968e422cfc
+      CodeUri: s3://kodo-lambda/6bf327148817662ac1f0cffcf8b62792
   KodoStatCalculationHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -53,7 +53,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/40ee1273f37f54c13bfd72968e422cfc
+      CodeUri: s3://kodo-lambda/6bf327148817662ac1f0cffcf8b62792
   KodoStatQueue:
     Type: AWS::SQS::Queue
   KodoStatQueuePolicy:
