@@ -12,9 +12,9 @@ Kodo is built on serverless technologies using Amazon Web Services Serverless Ap
 
 ## Features ✅
 
-- Tracks activity across your: projects, files and programming languages. 
-- Automatically stores all tracked activity remotely. 
-- Automatically begins rrecording your coding activity. 
+- Tracks activity across your: projects, files and programming languages.
+- Automatically stores all tracked activity remotely.
+- Automatically begins recording your coding activity.
 
 ## Coming soon 🛠 
 
@@ -40,3 +40,7 @@ Kodo captures the following data and ships it off to Amazon.
 * Your projects file names
 * Your workspaces folder name
 * Your elapsed time within these files/folders
+
+## Data Handling
+
+If you've built this extension locally and sent your data to our database and would like it deleting, please raise an issue against this repo and we will remove it.
