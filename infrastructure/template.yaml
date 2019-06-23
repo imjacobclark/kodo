@@ -69,7 +69,7 @@ Resources:
         swagger: "2.0"
         info:
           version: "1"
-          title: "vs-odo"
+          title: "kodo"
         basePath: "/production"
         schemes:
         - "https"
@@ -92,7 +92,7 @@ Resources:
               - api_key: []
               x-amazon-apigateway-integration:
                 credentials: 
-                  Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/vs-odo-apigateway-sqs"
+                  Fn::Sub: "arn:aws:iam::${AWS::AccountId}:role/kodo-apigateway-sqs"
                 uri: 
                   Fn::Sub: "arn:aws:apigateway:${AWS::Region}:sqs:path/${OdoStatQueue.QueueName}"
                 responses:

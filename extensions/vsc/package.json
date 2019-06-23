@@ -1,10 +1,10 @@
 {
-	"name": "vs-odo",
-	"displayName": "vs-odo",
+	"name": "kodo",
+	"displayName": "kodo",
 	"description": "Measure your coding activity!",
 	"version": "0.0.1",
 	"publisher": "imjacobclark",
-	"repository": "https://github.com/Microsoft/vscode-extension-samples/vs-odo",
+	"repository": "https://github.com/imjacobclark/kodo",
 	"engines": {
 		"vscode": "^1.34.0"
 	},

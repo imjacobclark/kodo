@@ -1,8 +1,8 @@
-# vs-odo Architecture 
+# Kodo Architecture 
 
-vs-odo is an asynchronous, serverless architecture. Events are fired into an API Gateway, placed on a queue, processed, stored, processed again, stored and can ultimately be read when required.
+Kodo is an asynchronous, serverless architecture. Events are fired into an API Gateway, placed on a queue, processed, stored, processed again, stored and can ultimately be read when required.
 
-vs-odo is deployed onto Amazon Web Services and built using the Serverless Application Model (AWS SAM).
+Kodo is deployed onto Amazon Web Services and built using the Serverless Application Model (AWS SAM).
 
 ## Components used
 
@@ -13,4 +13,4 @@ vs-odo is deployed onto Amazon Web Services and built using the Serverless Appli
 
 ## Architecture Overview
 
-![Architecture Container Diagram](https://github.com/imjacobclark/vs-odo/blob/master/architecture/Container%20Diagram.png)
+![Architecture Container Diagram](https://github.com/imjacobclark/kodo/blob/master/architecture/Container%20Diagram.png)

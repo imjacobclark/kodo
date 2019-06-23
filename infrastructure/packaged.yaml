@@ -26,7 +26,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoStatTable
-      CodeUri: s3://vs-odo-lambda/9366d22b2b8d036421f56d5ade839e12
+      CodeUri: s3://kodo-lambda/9366d22b2b8d036421f56d5ade839e12
   OdoStatCalculationHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -53,7 +53,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoCalculationTable
-      CodeUri: s3://vs-odo-lambda/3efcbb65dd33e924c98b1737defab97b
+      CodeUri: s3://kodo-lambda/3efcbb65dd33e924c98b1737defab97b
   OdoStatQueue:
     Type: AWS::SQS::Queue
   OdoStatQueuePolicy:
@@ -80,7 +80,7 @@ Resources:
         swagger: '2.0'
         info:
           version: '1'
-          title: vs-odo
+          title: kodo
         basePath: /production
         schemes:
         - https
@@ -103,7 +103,7 @@ Resources:
               - api_key: []
               x-amazon-apigateway-integration:
                 credentials:
-                  Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/vs-odo-apigateway-sqs
+                  Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/kodo-apigateway-sqs
                 uri:
                   Fn::Sub: arn:aws:apigateway:${AWS::Region}:sqs:path/${OdoStatQueue.QueueName}
                 responses:
