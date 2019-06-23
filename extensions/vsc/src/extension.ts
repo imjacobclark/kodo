@@ -68,8 +68,10 @@ export function activate(context: vscode.ExtensionContext) {
 			console.log(eventBuffer);
 
 			const heartbeat = new Heartbeat("imjacobclark", eventBuffer.get()).toBase64();
+
+			console.log(heartbeat);
 		
-			fetch(`https://cjudn1rrx9.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${heartbeat}`).then(event => {
+			fetch(`https://s00q6f4ltf.execute-api.eu-west-1.amazonaws.com/v1/v1/send?MessageBody=${heartbeat}`).then(event => {
 				console.log("Sent heartbeat");
 				timeSinceLastHeartbeat = epoch;
 				trackedLocations = {};

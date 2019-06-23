@@ -1,18 +1,18 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  OdoStatHandler:
+  KodoStatHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: statEvent.handler
+      Handler: src/events/statEvent.handler
       Runtime: nodejs8.10
       Events:
-        OdoStatEvent:
+        KodoStatEvent:
           Type: SQS
           Properties:
             Queue:
               Fn::GetAtt:
-              - OdoStatQueue
+              - KodoStatQueue
               - Arn
             BatchSize: 10
       Policies:
@@ -25,12 +25,12 @@ Resources:
           - dynamodb:PutItem
           - dynamodb:UpdateItem
           Resource:
-            Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoStatTable
-      CodeUri: s3://kodo-lambda/9366d22b2b8d036421f56d5ade839e12
-  OdoStatCalculationHandler:
+            Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoStatTable
+      CodeUri: s3://kodo-lambda/40ee1273f37f54c13bfd72968e422cfc
+  KodoStatCalculationHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: eventCalculation.handler
+      Handler: src/calculations/eventCalculation.handler
       Runtime: nodejs8.10
       Events:
         Stream:
@@ -38,7 +38,7 @@ Resources:
           Properties:
             Stream:
               Fn::GetAtt:
-              - OdoStatStore
+              - KodoStatStore
               - StreamArn
             BatchSize: 1000
             StartingPosition: TRIM_HORIZON
@@ -52,15 +52,15 @@ Resources:
           - dynamodb:PutItem
           - dynamodb:UpdateItem
           Resource:
-            Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/OdoCalculationTable
-      CodeUri: s3://kodo-lambda/3efcbb65dd33e924c98b1737defab97b
-  OdoStatQueue:
+            Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
+      CodeUri: s3://kodo-lambda/40ee1273f37f54c13bfd72968e422cfc
+  KodoStatQueue:
     Type: AWS::SQS::Queue
-  OdoStatQueuePolicy:
+  KodoStatQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
-      - Ref: OdoStatQueue
+      - Ref: KodoStatQueue
       PolicyDocument:
         Statement:
           Effect: Allow
@@ -68,12 +68,12 @@ Resources:
           Action: sqs:SendMessage
           Resource:
             Fn::GetAtt:
-            - OdoStatQueue
+            - KodoStatQueue
             - Arn
-  OdoStatApi:
+  KodoStatApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: OdoStatApi
+      Name: KodoStatApi
       EndpointConfiguration: REGIONAL
       StageName: v1
       DefinitionBody:
@@ -103,9 +103,9 @@ Resources:
               - api_key: []
               x-amazon-apigateway-integration:
                 credentials:
-                  Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/kodo-apigateway-sqs
+                  Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/kodo-apigateway
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:sqs:path/${OdoStatQueue.QueueName}
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:sqs:path/${KodoStatQueue.QueueName}
                 responses:
                   default:
                     statusCode: '200'
@@ -120,10 +120,10 @@ Resources:
           Empty:
             type: object
             title: Empty Schema
-  OdoStatStore:
+  KodoStatStore:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: OdoStatTable
+      TableName: KodoStatTable
       AttributeDefinitions:
       - AttributeName: userId
         AttributeType: S
@@ -135,10 +135,10 @@ Resources:
         WriteCapacityUnits: 1
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
-  OdoCalculationStore:
+  KodoCalculationStore:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: OdoCalculationTable
+      TableName: KodoCalculationTable
       AttributeDefinitions:
       - AttributeName: userId
         AttributeType: S

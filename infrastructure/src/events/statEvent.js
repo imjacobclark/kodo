@@ -14,7 +14,7 @@ exports.handler = event => {
             .reduce((previous, current) => [...current.events, ...previous], []);
 
         dynamodb.update({
-            TableName: 'OdoStatTable',
+            TableName: 'KodoStatTable',
             Key: { userId: userId },
             UpdateExpression: 'set events = list_append(if_not_exists(events, :empty_list), :value)',
             ExpressionAttributeValues: {

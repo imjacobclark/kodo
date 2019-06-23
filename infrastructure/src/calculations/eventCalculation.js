@@ -59,7 +59,7 @@ exports.handler = event => {
             "userId": userId,
             "stats": stats
         },
-        TableName: "OdoCalculationTable"
+        TableName: "KodoCalculationTable"
     }, (err, data) => err ? console.error('ERROR: ' + err) : console.info('OK: ' + JSON.stringify(data, null, '  ')));
 
     return {
