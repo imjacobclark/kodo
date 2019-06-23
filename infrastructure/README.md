@@ -2,7 +2,11 @@
 
 ## Deploying 🚀
 
-Kodas event stream looks a bit like: `Extension -> API Gateway -> SQS -> Lambda (Event Handler) -> DynamoDB (Event Store) -> DynamoDB Stream (Event Stream) -> Lambda (Calculation Handler) -> DynamoDB (Calculation Store) <- Lambda (Presentation Handler) <- API Gateway (Presentation API) `, you can deploy all of this into your own AWS account, you'll need `Python3`, `pip` and the `awscli`. Once you have these you can configure the awscli with your AWS client key and secret and deploy the stacks!
+Kodas event stream looks a bit like: 
+
+```Extension -> API Gateway -> SQS -> Lambda (Event Handler) -> DynamoDB (Event Store) -> DynamoDB Stream (Event Stream) -> Lambda (Calculation Handler) -> DynamoDB (Calculation Store) <- Lambda (Presentation Handler) <- API Gateway (Presentation API) ```
+
+You can deploy all of this into your own AWS account, you'll need `Python3`, `pip` and the `awscli`. Once you have these you can configure the awscli with your AWS client key and secret and deploy the stacks!
 
 You'll need to manually configure an IAM role called `kodo-apigateway` with a permissions policy of `AmazonAPIGatewayPushToCloudWatchLogs`, this will eventually make its way into CloudFormation, but for the mo, do manually create it otherwise all API requests will fail.
 
