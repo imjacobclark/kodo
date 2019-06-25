@@ -2,11 +2,19 @@
 
 ## Deploying 🚀
 
-Kodas infrastructure looks a bit like: 
+Kodo is split into many smaller, decoupled systems but they all loosley group into two high level systems.
 
-```Extension -> API Gateway -> SQS -> Lambda (Event Handler) -> DynamoDB (Event Store) -> DynamoDB Stream (Event Stream) -> Lambda (Calculation Handler) -> DynamoDB (Calculation Store)```
+### Heartbeat architecture:
 
-```Web Browser -> API Gateway -> Lambda (Stats Handler) -> DynamoDB (Calculation Store)```
+An event driven flow that handles heartbeats coming in from clients, storing them and processing them into stats for future clients to read.
+
+```Extension -> API Gateway (Kodo Api) -> SQS -> Lambda (Event Handler) -> DynamoDB (Event Store) -> DynamoDB Stream (Event Stream) -> Lambda (Calculation Handler) -> DynamoDB (Calculation Store)```
+
+### Presentation architecture: 
+
+A request driven flow that reads stats derived from earlier events.
+
+```Web Browser -> API Gateway (Kodo Api) -> Lambda (Stats Handler) -> DynamoDB (Calculation Store)```
 
 You can deploy all of this into your own AWS account, you'll need `Python3`, `pip` and the `awscli`. Once you have these you can configure the awscli with your AWS client key and secret and deploy the stacks!
 

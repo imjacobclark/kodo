@@ -1,3 +1,33 @@
+/*
+Schema to move towards...
+
+{
+    "stats": {
+        "kodo": {
+            "items": [
+                {
+                    type: "ide"
+                    identifier: "Html.hs",
+                    elapsed: 1000,
+                    date: "02-08-1993",
+                    language: "Haskell",
+                    editor: "vsc",
+                }
+            ]
+        },
+        "chrome": {
+            "items": [
+                {
+                    type: "browser"
+                    identifier: "bbc.co.uk",
+                    elapsed: 1000,
+                    date: "02-08-1993",
+                }
+            ]
+        },
+    }
+}
+*/
 const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 

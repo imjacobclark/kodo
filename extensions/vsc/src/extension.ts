@@ -47,8 +47,6 @@ export function activate(context: vscode.ExtensionContext) {
 					location = trackedLocations[currentEventNamespace];
 					location.odo.fire(epoch);
 				}
-			}else{
-				console.log("Timed out...");
 			}
 
 			if (!shouldAttemptToSendFurtherHeartbeats) return;
@@ -64,15 +62,9 @@ export function activate(context: vscode.ExtensionContext) {
 				trackedLocations[key].languageId
 			)));
 
-		
-			console.log(eventBuffer);
-
 			const heartbeat = new Heartbeat("imjacobclark", eventBuffer.get()).toBase64();
 
-			console.log(heartbeat);
-		
-			fetch(`https://p27vk97i6f.execute-api.eu-west-1.amazonaws.com/production/v1/send?MessageBody=${heartbeat}`).then(event => {
-				console.log("Sent heartbeat");
+			fetch(`https://he1coyry29.execute-api.eu-west-1.amazonaws.com/production/v1/send?MessageBody=${heartbeat}`).then(event => {
 				timeSinceLastHeartbeat = epoch;
 				trackedLocations = {};
 				eventBuffer = new EventBuffer();

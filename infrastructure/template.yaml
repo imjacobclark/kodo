@@ -20,12 +20,12 @@ Resources:
               Action:
                 - 'dynamodb:UpdateItem'
               Resource:
-                Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoStatTable"
-  KodoCalculateStatsHandler:
+                Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoEventStore"
+  KodoCalculateAllTimeUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: "KodoCalculateStatsHandler"
-      Handler: src/stats/calculateUserStatsFromEvents.handler
+      FunctionName: "KodoCalculateAllTimeUserStatsHandler"
+      Handler: src/stats/calculateAllTimeUserStatsFromEvents.handler
       Runtime: nodejs8.10
       Events:
         Stream:
@@ -52,7 +52,7 @@ Resources:
         Api:
           Type: Api
           Properties: 
-            Path: /v1/calculations
+            Path: /v1/stats/{userId}
             Method: Get
             RestApiId: !Ref KodoApi
       Policies:
@@ -117,7 +117,7 @@ Resources:
                 passthroughBehavior: "when_no_match"
                 httpMethod: "POST"
                 type: "aws"
-          /v1/calculations/{userId}:
+          /v1/stats/{userId}:
             get:
               produces:
                 - "application/json"

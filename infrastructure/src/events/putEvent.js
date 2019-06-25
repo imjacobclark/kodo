@@ -22,7 +22,7 @@ exports.handler = payload => {
         const userEvents = getUserEventsByUserId(userId, heartbeat);
 
         dynamodb.update({
-            TableName: 'KodoStatTable',
+            TableName: 'KodoEventStore',
             Key: { userId: userId },
             UpdateExpression: 'set events = list_append(if_not_exists(events, :empty_list), :value)',
             ExpressionAttributeValues: {
