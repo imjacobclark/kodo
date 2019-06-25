@@ -1,14 +1,14 @@
 const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-exports.handler = event => {
+exports.handler = payload => {
     const stats = {
         "projects": {},
     };
     
     let userId = "";
 
-    event
+    payload
         .Records
         .forEach(record => {
             const newImage = record

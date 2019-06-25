@@ -2,9 +2,11 @@
 
 ## Deploying 🚀
 
-Kodas event stream looks a bit like: 
+Kodas infrastructure looks a bit like: 
 
-```Extension -> API Gateway -> SQS -> Lambda (Event Handler) -> DynamoDB (Event Store) -> DynamoDB Stream (Event Stream) -> Lambda (Calculation Handler) -> DynamoDB (Calculation Store) <- Lambda (Presentation Handler) <- API Gateway (Presentation API) ```
+```Extension -> API Gateway -> SQS -> Lambda (Event Handler) -> DynamoDB (Event Store) -> DynamoDB Stream (Event Stream) -> Lambda (Calculation Handler) -> DynamoDB (Calculation Store)```
+
+```Web Browser -> API Gateway -> Lambda (Stats Handler) -> DynamoDB (Calculation Store)```
 
 You can deploy all of this into your own AWS account, you'll need `Python3`, `pip` and the `awscli`. Once you have these you can configure the awscli with your AWS client key and secret and deploy the stacks!
 

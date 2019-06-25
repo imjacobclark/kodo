@@ -1,10 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  KodoStatHandler:
+  KodoPutEventHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/events/statEvent.handler
+      FunctionName: KodoPutEventHandler
+      Handler: src/events/putEvent.handler
       Runtime: nodejs8.10
       Events:
         KodoStatEvent:
@@ -12,7 +13,7 @@ Resources:
           Properties:
             Queue:
               Fn::GetAtt:
-              - KodoStatQueue
+              - KodoEventQueue
               - Arn
             BatchSize: 10
       Policies:
@@ -20,17 +21,15 @@ Resources:
         Statement:
         - Effect: Allow
           Action:
-          - dynamodb:DeleteItem
-          - dynamodb:GetItem
-          - dynamodb:PutItem
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoStatTable
-      CodeUri: s3://kodo-lambda/6bf327148817662ac1f0cffcf8b62792
-  KodoStatCalculationHandler:
+      CodeUri: s3://kodo-lambda/58206ca5533c16daf1d53c5b90a37b9c
+  KodoCalculateStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/calculations/eventCalculation.handler
+      FunctionName: KodoCalculateStatsHandler
+      Handler: src/stats/calculateUserStatsFromEvents.handler
       Runtime: nodejs8.10
       Events:
         Stream:
@@ -38,7 +37,7 @@ Resources:
           Properties:
             Stream:
               Fn::GetAtt:
-              - KodoStatStore
+              - KodoEventStore
               - StreamArn
             BatchSize: 1000
             StartingPosition: TRIM_HORIZON
@@ -47,20 +46,42 @@ Resources:
         Statement:
         - Effect: Allow
           Action:
-          - dynamodb:DeleteItem
-          - dynamodb:GetItem
           - dynamodb:PutItem
-          - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/6bf327148817662ac1f0cffcf8b62792
-  KodoStatQueue:
+      CodeUri: s3://kodo-lambda/58206ca5533c16daf1d53c5b90a37b9c
+  KodoGetUserStatsHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: KodoGetUserStatsHandler
+      Handler: src/stats/getUserStats.handler
+      Runtime: nodejs8.10
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /v1/calculations
+            Method: Get
+            RestApiId:
+              Ref: KodoApi
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:GetItem
+          Resource:
+            Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
+      CodeUri: s3://kodo-lambda/58206ca5533c16daf1d53c5b90a37b9c
+  KodoEventQueue:
     Type: AWS::SQS::Queue
-  KodoStatQueuePolicy:
+    Properties:
+      QueueName: KodoEventQueue
+  KodoEventQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
-      - Ref: KodoStatQueue
+      - Ref: KodoEventQueue
       PolicyDocument:
         Statement:
           Effect: Allow
@@ -68,20 +89,20 @@ Resources:
           Action: sqs:SendMessage
           Resource:
             Fn::GetAtt:
-            - KodoStatQueue
+            - KodoEventQueue
             - Arn
-  KodoStatApi:
+  KodoApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: KodoStatApi
+      Name: KodoApi
       EndpointConfiguration: REGIONAL
-      StageName: v1
+      StageName: production
       DefinitionBody:
         swagger: '2.0'
         info:
           version: '1'
           title: kodo
-        basePath: /production
+        basePath: /v1
         schemes:
         - https
         paths:
@@ -94,18 +115,11 @@ Resources:
                 in: query
                 required: true
                 type: string
-              responses:
-                '200':
-                  description: 200 response
-                  schema:
-                    $ref: '#/definitions/Empty'
-              security:
-              - api_key: []
               x-amazon-apigateway-integration:
                 credentials:
                   Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/kodo-apigateway
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:sqs:path/${KodoStatQueue.QueueName}
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:sqs:path/${KodoEventQueue.QueueName}
                 responses:
                   default:
                     statusCode: '200'
@@ -116,14 +130,24 @@ Resources:
                 passthroughBehavior: when_no_match
                 httpMethod: POST
                 type: aws
-        definitions:
-          Empty:
-            type: object
-            title: Empty Schema
-  KodoStatStore:
+          /v1/calculations/{userId}:
+            get:
+              produces:
+              - application/json
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:KodoGetUserStatsHandler/invocations
+                responses:
+                  default:
+                    statusCode: '200'
+                passthroughBehavior: when_no_match
+                httpMethod: POST
+                contentHandling: CONVERT_TO_TEXT
+                type: aws_proxy
+  KodoEventStore:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: KodoStatTable
+      TableName: KodoEventStore
       AttributeDefinitions:
       - AttributeName: userId
         AttributeType: S
