@@ -1,17 +1,17 @@
 export default class StatEvent {
     epoch:  number;
     elapsed: number;
-    type: string = "ide";
-    project: string;
-    file: string;
+    workspace: string;
+    identifier: string;
     language: string;
-    editor: string = "vsc";
+    type: string = "ide";
+    application: string = "vsc";
 
-    constructor(epoch: number, elapsed: number, project: string, file: string, language: string) {
+    constructor(epoch: number, elapsed: number, workspace: string, identifier: string, language: string) {
         this.epoch = epoch;
         this.elapsed = elapsed;
-        this.project = project;
-        this.file = file;
+        this.workspace = workspace;
+        this.identifier = identifier;
         this.language = language;
     }
 }

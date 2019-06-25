@@ -13,8 +13,8 @@ export function activate(context: vscode.ExtensionContext) {
 	let trackedLocations: { 
 		[index: string]: { 
 			odo: Odo, 
-			fileName: string, 
-			project: string, 
+			identifier: string, 
+			workspace: string, 
 			languageId: string 
 		} 
 	} = {};
@@ -40,8 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
 				} else {
 					trackedLocations[currentEventNamespace] = {
 						odo: new Odo(),
-						fileName: editor.document.fileName.split("/").slice(-1)[0],
-						project: getProjectName(editor.document.fileName),
+						identifier: editor.document.fileName.split("/").slice(-1)[0],
+						workspace: getProjectName(editor.document.fileName),
 						languageId: editor.document.languageId
 					}
 					location = trackedLocations[currentEventNamespace];
@@ -57,14 +57,14 @@ export function activate(context: vscode.ExtensionContext) {
 			Object.keys(trackedLocations).forEach(key => eventBuffer.add(new StatEvent(
 				epoch,
 				trackedLocations[key].odo.getElapsedTime(),
-				trackedLocations[key].project,
-				trackedLocations[key].fileName,
+				trackedLocations[key].workspace,
+				trackedLocations[key].identifier,
 				trackedLocations[key].languageId
 			)));
 
 			const heartbeat = new Heartbeat("imjacobclark", eventBuffer.get()).toBase64();
 
-			fetch(`https://he1coyry29.execute-api.eu-west-1.amazonaws.com/production/v1/send?MessageBody=${heartbeat}`).then(event => {
+			fetch(`https://cpt0idgcqe.execute-api.eu-west-1.amazonaws.com/production/v1/send?MessageBody=${heartbeat}`).then(event => {
 				timeSinceLastHeartbeat = epoch;
 				trackedLocations = {};
 				eventBuffer = new EventBuffer();

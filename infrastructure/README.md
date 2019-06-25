@@ -28,3 +28,78 @@ $ pip3 install awscli --upgrade --user
 $ aws configure
 $ make package && make deploy
 ```
+
+### Sending stats to Kodo
+
+Any application capable of sending HTTP GET requests at regular intervals is capable of sending stats to Kodo.
+
+Kodo expects a well formed JSON object to be sent as a `base64` encoded string via a query parameter to our events API, this well formed object may vary depending on the type of stat you're sending to Kodo, for example, if you wish to send stats for an IDE (Integrated Development Environment, like Visual Studio Code or Vim), you'd send the following payload as a `base64` string.
+
+```json
+{
+    "application": "vsc",
+    "elapsed": 1000,
+    "epoch": 1561497275711,
+    "identifier": "Authorization.hs",
+    "language": "haskell",
+    "type": "ide",
+    "workspace": "Recify"
+}
+```
+
+This payload is what we call an event, it should be sent at a regular interval (ideally `1m` intervals, no less). 
+
+Events are then processed in real time in order to translate and consoliate them down into higher level calculations, such as: all time, daily, weekly, monthly and yearly statistics to be presented back to the user. 
+
+An all time stats calculation would look like the below object. This object sums up the statistics of an entire workspace, the items within it (in this instance workspace files) and how long has been spent within each item, plus additional metadata such as: the programming language, the type of application and the application identifier itself (`vsc` for Visual Studio Code).
+
+```json
+{
+    "stats": {
+        "Recify": {
+            "items": [
+                {
+                    "application": "vsc",
+                    "type": "ide",
+                    "identifier": "Authorization.hs",
+                    "elapsed": 1000,
+                    "language": "Haskell"
+                }
+            ]
+        }
+    }
+}
+```
+
+A daily stats caluclation would look like the below object (schema to be confirmed).
+
+```json
+{
+    "stats": {
+        "Recify": {
+            "01-08-2019": {
+                "items": [
+                    {
+                        "application": "vsc",
+                        "type": "ide",
+                        "identifier": "Main.hs",
+                        "elapsed": 4578,
+                        "language": "Haskell"
+                    }
+                ]
+            },
+            "02-08-2019": {
+                "items": [
+                    {
+                        "application": "vsc",
+                        "type": "ide",
+                        "identifier": "Authorization.hs",
+                        "elapsed": 1000,
+                        "language": "Haskell"
+                    }
+                ]
+            }
+        }
+    }
+}
+```

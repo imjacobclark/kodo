@@ -1,89 +1,47 @@
-/*
-Schema to move towards...
-
-{
-    "stats": {
-        "kodo": {
-            "items": [
-                {
-                    type: "ide"
-                    identifier: "Html.hs",
-                    elapsed: 1000,
-                    date: "02-08-1993",
-                    language: "Haskell",
-                    editor: "vsc",
-                }
-            ]
-        },
-        "chrome": {
-            "items": [
-                {
-                    type: "browser"
-                    identifier: "bbc.co.uk",
-                    elapsed: 1000,
-                    date: "02-08-1993",
-                }
-            ]
-        },
-    }
-}
-*/
 const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
+const stat = event => {
+    return {
+        identifier: event.identifier.S,
+        language: event.language.S,
+        elapsed: event.elapsed.N,
+        application: event.application.S,
+        type: event.type.S
+    }
+}
+
 exports.handler = payload => {
-    const stats = {
-        "projects": {},
-    };
-    
+    const stats = {};
     let userId = "";
 
-    payload
-        .Records
-        .forEach(record => {
-            const newImage = record
-                .dynamodb
-                .NewImage;
-                
-            if (!newImage) return;
+    payload.Records.forEach(record => {
+        const changedDynamoDBRecord = record.dynamodb.NewImage;
+            
+        if (!changedDynamoDBRecord) return;
 
-            userId = newImage.userId.S
+        userId = changedDynamoDBRecord.userId.S
 
-            // Need to add languages summary within projects {}
-            return newImage.events.L.forEach(event => {
-                let project = stats["projects"][event.M.project.S];
+        return changedDynamoDBRecord.events.L.forEach(event => {
+            event = event.M;
+            const activityName = event.workspace.S
+            const activities = stats[activityName];
 
-                if (project){
-                    const file = project
-                        .files
-                        .find(file => {
-                            return event.M.file.S === file.fileName
-                        });
+            const noStatsForActivityHaveBeenRecorded = !activities;
+            if (noStatsForActivityHaveBeenRecorded){
+                stats[activityName] = [stat(event)];
+            } else {
+                const activity = activities.find(activity => event.identifier.S === activity.identifier);
 
-                    if (file) {
-                        file.elapsed = new Number(file.elapsed) + new Number(event.M.elapsed.N);
-                    } else {
-                        project.files.push({
-                            fileName: event.M.file.S,
-                            language: event.M.language.S,
-                            elapsed: event.M.elapsed.N
-                        });
-                    }
-                }else{
-                    stats["projects"][event.M.project.S] = {
-                        files: [
-                            {
-                                fileName: event.M.file.S,
-                                language: event.M.language.S,
-                                elapsed: event.M.elapsed.N
-                            }
-                        ]
-                    }
-                };
-            });
+                if (activity) {
+                    activity.elapsed = new Number(activity.elapsed) + new Number(event.elapsed.N);
+                } else {
+                    activities.push(stat(event));
+                }
+            }
         });
+    });
 
-    // We should convert the date to an epoch, have it as the sort key and put a new record per date
     dynamodb.put({
         Item: {
             "userId": userId,
