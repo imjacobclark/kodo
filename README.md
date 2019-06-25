@@ -28,9 +28,17 @@ Kodo is built on serverless technologies using Amazon Web Services Serverless Ap
 
 ## Develop, Build & Deploy
 
+### Extensions
+
 Each extension has its own README on how to to build and deploy, see the `extensions` directory for the full list of supported extensions.
 
-Kodos infrastructure can be developed and deployed as a separate entity, see the `infrastructure` directory for full instructions.
+### Infrastructure
+
+Kodos infrastructure takes care of much of the business logic, it is fully event driven and fully serverless via AWS SAM. It can be developed and deployed as a separate entity, see the `infrastructure` directory for full instructions.
+
+### Web
+
+Kodas website is built and deployed independently of the rest of the infrastructure, it is AWS Amplify which takes care of all the heavy lifting. Web calls out to the infrastructure to gather data. See the `web` directory for full instructions.
 
 ## Disclosure 
 
