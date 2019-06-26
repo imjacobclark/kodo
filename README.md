@@ -1,12 +1,12 @@
 # Kodo
 
-Kodo is a service that quantifies your software usage. It measures how long you've spent in a piece of software and reports it back at regular intervals so you can quantify your usage. 
+Kodo is a service that measures your software usage. It can track how long you've spent browsing the web this month, how long you've spent coding today and even what your all time favourite song is.
 
-Most often Kodo will require installation in your software as an extension or plugin, this extension sends heartbeat stats back to an API and stores them to be queried later. 
+Kodo is most often an extension or plugin that you'll need to install in the software you want to measure your usage in. The extension sends  stats back to Kodo and we store them so you can view them later. 
 
-Kodo is able to support any software application that is able to send stats in a particular format. It 
+Kodo is able to support any software application that is able to send stats in a particular format. If you'd like to track usage in an application that isn't yet supported, please do contribute back!  
 
-Kodo is built on serverless technologies using Amazon Web Services Serverless Application Model (AWS SAM), meaning you can easily depoy this to your own infrastructure if you fancy!
+Whilst Kodo is a managed service, it is built on serverless technologies using Amazon Web Services Serverless Application Model (AWS SAM), meaning you can easily depoy this to your own infrastructure.
 
 ## Software Support 👌
 
