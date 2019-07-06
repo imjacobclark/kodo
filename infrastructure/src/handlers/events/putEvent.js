@@ -79,11 +79,13 @@ class Event {
         const heartbeatCollection = new HeartbeatCollection(heartbeats);
 
         try {
-            const response = heartbeatCollection
+            heartbeatCollection
                 .normalizedHeartbeats()
                 .forEach(event => {
                     new KodoEventStoreDAO(this.dynamodb).put(event.userId, event.events);
                 });
+
+            console.info("Request handled successfully");
             
             return {
                 statusCode: 200,

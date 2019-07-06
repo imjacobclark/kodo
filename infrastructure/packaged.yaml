@@ -24,7 +24,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoEventStore
-      CodeUri: s3://kodo-lambda/8a121e3fafdebe260615542b77a62ac9
+      CodeUri: s3://kodo-lambda/f184a5269ca4be942b5efeed44767823
   KodoCalculateAllTimeUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -49,7 +49,7 @@ Resources:
           - dynamodb:PutItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/8a121e3fafdebe260615542b77a62ac9
+      CodeUri: s3://kodo-lambda/f184a5269ca4be942b5efeed44767823
   KodoGetUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -72,7 +72,7 @@ Resources:
           - dynamodb:GetItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/8a121e3fafdebe260615542b77a62ac9
+      CodeUri: s3://kodo-lambda/f184a5269ca4be942b5efeed44767823
   KodoEventQueue:
     Type: AWS::SQS::Queue
     Properties:
