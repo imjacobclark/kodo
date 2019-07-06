@@ -30,9 +30,9 @@ Whilst Kodo is a managed service, it is built on serverless technologies using A
 
 ## Develop, Build & Deploy
 
-### Extensions
+### Integrations
 
-Each extension has its own README on how to to build and deploy, see the `extensions` directory for the full list of supported extensions.
+Each extension has its own README on how to to build and deploy, see the `integrations` directory for the full list of supported integrations.
 
 ### Infrastructure
 

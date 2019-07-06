@@ -5,7 +5,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: "KodoPutEventHandler"
-      Handler: src/events/putEvent.handler
+      Handler: src/handlers/events/putEvent.handler
       Runtime: nodejs8.10
       Events:
         KodoStatEvent:
@@ -25,7 +25,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: "KodoCalculateAllTimeUserStatsHandler"
-      Handler: src/stats/calculateAllTimeUserStatsFromEvents.handler
+      Handler: src/handlers/stats/calculateAllTimeUserStatsFromEvents.handler
       Runtime: nodejs8.10
       Events:
         Stream:
@@ -46,7 +46,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: "KodoGetUserStatsHandler"
-      Handler: src/stats/getUserStats.handler
+      Handler: src/handlers/stats/getUserStats.handler
       Runtime: nodejs8.10
       Events:
         Api:

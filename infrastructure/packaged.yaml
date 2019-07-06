@@ -5,7 +5,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: KodoPutEventHandler
-      Handler: src/events/putEvent.handler
+      Handler: src/handlers/events/putEvent.handler
       Runtime: nodejs8.10
       Events:
         KodoStatEvent:
@@ -24,12 +24,12 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoEventStore
-      CodeUri: s3://kodo-lambda/354dd18890a2f97b6b66c0ea2d48a2e2
+      CodeUri: s3://kodo-lambda/8a121e3fafdebe260615542b77a62ac9
   KodoCalculateAllTimeUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: KodoCalculateAllTimeUserStatsHandler
-      Handler: src/stats/calculateAllTimeUserStatsFromEvents.handler
+      Handler: src/handlers/stats/calculateAllTimeUserStatsFromEvents.handler
       Runtime: nodejs8.10
       Events:
         Stream:
@@ -49,12 +49,12 @@ Resources:
           - dynamodb:PutItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/354dd18890a2f97b6b66c0ea2d48a2e2
+      CodeUri: s3://kodo-lambda/8a121e3fafdebe260615542b77a62ac9
   KodoGetUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: KodoGetUserStatsHandler
-      Handler: src/stats/getUserStats.handler
+      Handler: src/handlers/stats/getUserStats.handler
       Runtime: nodejs8.10
       Events:
         Api:
@@ -72,7 +72,7 @@ Resources:
           - dynamodb:GetItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/354dd18890a2f97b6b66c0ea2d48a2e2
+      CodeUri: s3://kodo-lambda/8a121e3fafdebe260615542b77a62ac9
   KodoEventQueue:
     Type: AWS::SQS::Queue
     Properties:

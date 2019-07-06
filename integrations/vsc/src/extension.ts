@@ -11,7 +11,7 @@ const ONE_MIN = 10000;
 
 export function activate(context: vscode.ExtensionContext) {
 	let trackedLocations: { 
-		[index: string]: { 
+		[index: string]: {
 			odo: Odo, 
 			identifier: string, 
 			workspace: string, 
@@ -31,7 +31,8 @@ export function activate(context: vscode.ExtensionContext) {
 			const timeElaspsedSinceLastEventInMs = epoch - timeSinceLastHeartbeat;
 			
 			// TODO: Need to handle the point where an event is being sent and the timeSinceLastHeartbeat hasn't been reset so we don't loose events.
-			if (timeElaspsedSinceLastEventInMs <= ONE_MIN){
+			const hasNotTimedOut = timeElaspsedSinceLastEventInMs <= ONE_MIN;
+			if (hasNotTimedOut){
 				const currentEventNamespace: string = getProjectName(editor.document.fileName) + ":" + editor.document.fileName.split("/").slice(-1)[0];
 				let location = trackedLocations[currentEventNamespace];
 
