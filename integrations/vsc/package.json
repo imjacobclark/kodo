@@ -1,7 +1,7 @@
 {
-	"name": "kodo",
-	"displayName": "kodo",
-	"description": "Measure your coding activity!",
+	"name": "vs-kodo",
+	"displayName": "Kodo for Visual Studio: Code",
+	"description": "Kodo is a service that measures your software usage. This extension allows Visual Studio: Code to send data back to Kodo so you can analise your code stats. Kodo can track how long you've spent browsing the web this month, how long you've spent coding today and even what your all time favourite song is.",
 	"version": "0.0.1",
 	"publisher": "imjacobclark",
 	"repository": "https://github.com/imjacobclark/kodo",
