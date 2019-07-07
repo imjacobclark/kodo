@@ -10,7 +10,7 @@ Whilst Kodo is a managed service, it is built on serverless technologies using A
 
 ## Software Support 👌
 
-![Visual Studio Code](https://github.com/imjacobclark/kodo/blob/master/architecture/supported-icons/vs-code.png)
+![Visual Studio Code](https://github.com/imjacobclark/kodo/blob/master/architecture/supported-icons/vscode.png)
 
 ## Features ✅
 
