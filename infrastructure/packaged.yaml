@@ -24,7 +24,7 @@ Resources:
           - dynamodb:UpdateItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoEventStore
-      CodeUri: s3://kodo-lambda/9159dc9f52ef4d287832522f6a7a1d2d
+      CodeUri: s3://kodo-lambda/9b0654b31c3161c7e519617aae80ac80
   KodoCalculateAllTimeUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -49,7 +49,33 @@ Resources:
           - dynamodb:PutItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/9159dc9f52ef4d287832522f6a7a1d2d
+      CodeUri: s3://kodo-lambda/9b0654b31c3161c7e519617aae80ac80
+  KodoCalculateDailyUserStatsHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: KodoCalculateDailyUserStatsHandler
+      Handler: src/handlers/stats/calculateDailyUserStatsFromEvents.handler
+      Runtime: nodejs8.10
+      Timeout: 10
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream:
+              Fn::GetAtt:
+              - KodoEventStore
+              - StreamArn
+            BatchSize: 1000
+            StartingPosition: TRIM_HORIZON
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:PutItem
+          Resource:
+            Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoDailyCalculationTable
+      CodeUri: s3://kodo-lambda/9b0654b31c3161c7e519617aae80ac80
   KodoGetUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -72,7 +98,7 @@ Resources:
           - dynamodb:GetItem
           Resource:
             Fn::Sub: arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable
-      CodeUri: s3://kodo-lambda/9159dc9f52ef4d287832522f6a7a1d2d
+      CodeUri: s3://kodo-lambda/9b0654b31c3161c7e519617aae80ac80
   KodoEventQueue:
     Type: AWS::SQS::Queue
     Properties:
@@ -172,3 +198,22 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
+  KodoDailyCalculationStore:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: KodoDailyCalculationTable
+      AttributeDefinitions:
+      - AttributeName: userId
+        AttributeType: S
+      - AttributeName: date
+        AttributeType: S
+      KeySchema:
+      - AttributeName: userId
+        KeyType: HASH
+      - AttributeName: date
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES

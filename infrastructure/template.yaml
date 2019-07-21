@@ -42,6 +42,28 @@ Resources:
                 - 'dynamodb:PutItem'
               Resource:
                 Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoCalculationTable"
+  KodoCalculateDailyUserStatsHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: "KodoCalculateDailyUserStatsHandler"
+      Handler: src/handlers/stats/calculateDailyUserStatsFromEvents.handler
+      Runtime: nodejs8.10
+      Timeout: 10
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt KodoEventStore.StreamArn
+            BatchSize: 1000
+            StartingPosition: TRIM_HORIZON
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:PutItem'
+              Resource:
+                Fn::Sub: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/KodoDailyCalculationTable"
   KodoGetUserStatsHandler:
     Type: AWS::Serverless::Function
     Properties:
@@ -159,3 +181,22 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1 
+  KodoDailyCalculationStore:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: KodoDailyCalculationTable
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: date
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+        - AttributeName: date
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1 
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
